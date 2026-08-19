@@ -1,6 +1,35 @@
 @ApiProductos_HostAddress = http://localhost:5021
 
-GET {{ApiProductos_HostAddress}}/weatherforecast/
+GET {{ApiProductos_HostAddress}}/api/productos
 Accept: application/json
 
 ###
+
+POST {{ApiProductos_HostAddress}}/api/productos
+Content-Type: application/json
+
+{
+  "nombre": "Teclado mecánico",
+  "precio": 150000,
+  "stock": 10
+}
+
+###
+
+GET {{ApiProductos_HostAddress}}/api/productos/1
+Accept: application/json
+
+###
+
+PUT {{ApiProductos_HostAddress}}/api/productos/1
+Content-Type: application/json
+
+{
+  "nombre": "Teclado mecánico RGB",
+  "precio": 175000,
+  "stock": 8
+}
+
+###
+
+DELETE {{ApiProductos_HostAddress}}/api/productos/1
