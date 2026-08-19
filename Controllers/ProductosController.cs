@@ -1,4 +1,5 @@
 using ApiProductos.DTOs;
+using ApiProductos.Filters;
 using ApiProductos.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,6 +32,7 @@ public class ProductosController : ControllerBase
     }
 
     [HttpPost]
+    [ApiKeyAuthorizationFilter("user", "admin")]
     public ActionResult<Producto> Crear([FromBody] CrearProductoDto productoDto)
     {
         var producto = new Producto
@@ -47,7 +49,8 @@ public class ProductosController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public IActionResult Actualizar([FromRoute] int id, [FromBody] CrearProductoDto productoDto)
+    [ApiKeyAuthorizationFilter("admin")]
+    public IActionResult Actualizar([FromRoute] int id, [FromBody] ActualizarProductoDto productoDto)
     {
         var producto = Productos.FirstOrDefault(producto => producto.Id == id);
 
@@ -64,6 +67,7 @@ public class ProductosController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [ApiKeyAuthorizationFilter("admin")]
     public IActionResult Eliminar([FromRoute] int id)
     {
         var producto = Productos.FirstOrDefault(producto => producto.Id == id);
