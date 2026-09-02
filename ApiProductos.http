@@ -1,4 +1,5 @@
 @ApiProductos_HostAddress = http://localhost:5021
+@apiKey = admin-key
 
 GET {{ApiProductos_HostAddress}}/api/productos
 Accept: application/json
@@ -7,6 +8,7 @@ Accept: application/json
 
 POST {{ApiProductos_HostAddress}}/api/productos
 Content-Type: application/json
+X-API-KEY: {{apiKey}}
 
 {
   "nombre": "Teclado mecánico",
@@ -23,6 +25,7 @@ Accept: application/json
 
 PUT {{ApiProductos_HostAddress}}/api/productos/1
 Content-Type: application/json
+X-API-KEY: {{apiKey}}
 
 {
   "nombre": "Teclado mecánico RGB",
@@ -33,3 +36,10 @@ Content-Type: application/json
 ###
 
 DELETE {{ApiProductos_HostAddress}}/api/productos/1
+X-API-KEY: {{apiKey}}
+
+###
+
+GET {{ApiProductos_HostAddress}}/api/productos?filtroNombre=teclado&ordenarPor=-precio
+Accept: application/json
+X-API-KEY: {{apiKey}}
