@@ -1,6 +1,7 @@
 using ApiProductos.DTOs;
 using ApiProductos.Filters;
 using ApiProductos.Models;
+using ApiProductos.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApiProductos.Controllers;
@@ -9,19 +10,26 @@ namespace ApiProductos.Controllers;
 [Route("api/[controller]")]
 public class ProductosController : ControllerBase
 {
-    private static readonly List<Producto> Productos = new();
-    private static int siguienteId = 1;
+    private readonly IProductoService _productoService;
+
+    public ProductosController(IProductoService productoService)
+    {
+        _productoService = productoService;
+    }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Producto>> ObtenerTodos()
+    public ActionResult<IEnumerable<Producto>> ObtenerTodos(
+        [FromQuery] string? filtroNombre = null,
+        [FromQuery] string? ordenarPor = null)
     {
-        return Ok(Productos);
+        var productos = _productoService.ObtenerTodos(filtroNombre, ordenarPor);
+        return Ok(productos);
     }
 
     [HttpGet("{id:int}")]
     public ActionResult<Producto> ObtenerPorId([FromRoute] int id)
     {
-        var producto = Productos.FirstOrDefault(producto => producto.Id == id);
+        var producto = _productoService.ObtenerPorId(id);
 
         if (producto is null)
         {
@@ -35,16 +43,7 @@ public class ProductosController : ControllerBase
     [ApiKeyAuthorizationFilter("user", "admin")]
     public ActionResult<Producto> Crear([FromBody] CrearProductoDto productoDto)
     {
-        var producto = new Producto
-        {
-            Id = siguienteId++,
-            Nombre = productoDto.Nombre,
-            Precio = productoDto.Precio,
-            Stock = productoDto.Stock
-        };
-
-        Productos.Add(producto);
-
+        var producto = _productoService.Crear(productoDto);
         return CreatedAtAction(nameof(ObtenerPorId), new { id = producto.Id }, producto);
     }
 
@@ -52,16 +51,12 @@ public class ProductosController : ControllerBase
     [ApiKeyAuthorizationFilter("admin")]
     public IActionResult Actualizar([FromRoute] int id, [FromBody] ActualizarProductoDto productoDto)
     {
-        var producto = Productos.FirstOrDefault(producto => producto.Id == id);
+        var producto = _productoService.Actualizar(id, productoDto);
 
         if (producto is null)
         {
             return NotFound(new { mensaje = $"No existe un producto con Id {id}." });
         }
-
-        producto.Nombre = productoDto.Nombre;
-        producto.Precio = productoDto.Precio;
-        producto.Stock = productoDto.Stock;
 
         return NoContent();
     }
@@ -70,14 +65,13 @@ public class ProductosController : ControllerBase
     [ApiKeyAuthorizationFilter("admin")]
     public IActionResult Eliminar([FromRoute] int id)
     {
-        var producto = Productos.FirstOrDefault(producto => producto.Id == id);
+        var producto = _productoService.Eliminar(id);
 
         if (producto is null)
         {
             return NotFound(new { mensaje = $"No existe un producto con Id {id}." });
         }
 
-        Productos.Remove(producto);
         return NoContent();
     }
 }
