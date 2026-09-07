@@ -1,4 +1,5 @@
 using ApiProductos.Filters;
+using ApiProductos.Middleware;
 using ApiProductos.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +16,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.MapControllers();
 
 app.Run();

@@ -1,5 +1,6 @@
 using ApiProductos.DTOs;
 using ApiProductos.Models;
+using Microsoft.Extensions.Logging;
 
 namespace ApiProductos.Services;
 
@@ -7,9 +8,19 @@ public class ProductoService : IProductoService
 {
     private static readonly List<Producto> Productos = new();
     private static int siguienteId = 1;
+    private readonly ILogger<ProductoService> _logger;
 
-    public IEnumerable<Producto> ObtenerTodos(string? filtroNombre = null, string? ordenarPor = null)
+    public ProductoService(ILogger<ProductoService> logger)
     {
+        _logger = logger;
+    }
+
+    public async Task<IEnumerable<Producto>> ObtenerTodosAsync(string? filtroNombre = null, string? ordenarPor = null)
+    {
+        _logger.LogInformation("Obteniendo todos los productos. Filtro: {FiltroNombre}, OrdenarPor: {OrdenarPor}", filtroNombre, ordenarPor);
+
+        await Task.Delay(10);
+
         var query = Productos.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(filtroNombre))
@@ -31,13 +42,21 @@ public class ProductoService : IProductoService
         return query.ToList();
     }
 
-    public Producto? ObtenerPorId(int id)
+    public async Task<Producto?> ObtenerPorIdAsync(int id)
     {
+        _logger.LogInformation("Buscando producto con Id {Id}", id);
+
+        await Task.Delay(10);
+
         return Productos.FirstOrDefault(p => p.Id == id);
     }
 
-    public Producto Crear(CrearProductoDto productoDto)
+    public async Task<Producto> CrearAsync(CrearProductoDto productoDto)
     {
+        _logger.LogInformation("Creando producto: {Nombre}", productoDto.Nombre);
+
+        await Task.Delay(10);
+
         var producto = new Producto
         {
             Id = siguienteId++,
@@ -47,14 +66,21 @@ public class ProductoService : IProductoService
         };
 
         Productos.Add(producto);
+        _logger.LogInformation("Producto creado con Id {Id}", producto.Id);
+
         return producto;
     }
 
-    public Producto? Actualizar(int id, ActualizarProductoDto productoDto)
+    public async Task<Producto?> ActualizarAsync(int id, ActualizarProductoDto productoDto)
     {
-        var producto = ObtenerPorId(id);
+        _logger.LogInformation("Actualizando producto con Id {Id}", id);
+
+        await Task.Delay(10);
+
+        var producto = await ObtenerPorIdAsync(id);
         if (producto is null)
         {
+            _logger.LogWarning("Producto con Id {Id} no encontrado para actualizar", id);
             return null;
         }
 
@@ -62,18 +88,27 @@ public class ProductoService : IProductoService
         producto.Precio = productoDto.Precio;
         producto.Stock = productoDto.Stock;
 
+        _logger.LogInformation("Producto con Id {Id} actualizado correctamente", id);
+
         return producto;
     }
 
-    public Producto? Eliminar(int id)
+    public async Task<Producto?> EliminarAsync(int id)
     {
-        var producto = ObtenerPorId(id);
+        _logger.LogInformation("Eliminando producto con Id {Id}", id);
+
+        await Task.Delay(10);
+
+        var producto = await ObtenerPorIdAsync(id);
         if (producto is null)
         {
+            _logger.LogWarning("Producto con Id {Id} no encontrado para eliminar", id);
             return null;
         }
 
         Productos.Remove(producto);
+        _logger.LogInformation("Producto con Id {Id} eliminado correctamente", id);
+
         return producto;
     }
 }

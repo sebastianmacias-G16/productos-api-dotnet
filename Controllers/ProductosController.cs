@@ -11,28 +11,33 @@ namespace ApiProductos.Controllers;
 public class ProductosController : ControllerBase
 {
     private readonly IProductoService _productoService;
+    private readonly ILogger<ProductosController> _logger;
 
-    public ProductosController(IProductoService productoService)
+    public ProductosController(IProductoService productoService, ILogger<ProductosController> logger)
     {
         _productoService = productoService;
+        _logger = logger;
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Producto>> ObtenerTodos(
+    public async Task<ActionResult<IEnumerable<Producto>>> ObtenerTodos(
         [FromQuery] string? filtroNombre = null,
         [FromQuery] string? ordenarPor = null)
     {
-        var productos = _productoService.ObtenerTodos(filtroNombre, ordenarPor);
+        _logger.LogInformation("GET /api/productos - Obteniendo todos los productos");
+        var productos = await _productoService.ObtenerTodosAsync(filtroNombre, ordenarPor);
         return Ok(productos);
     }
 
     [HttpGet("{id:int}")]
-    public ActionResult<Producto> ObtenerPorId([FromRoute] int id)
+    public async Task<ActionResult<Producto>> ObtenerPorId([FromRoute] int id)
     {
-        var producto = _productoService.ObtenerPorId(id);
+        _logger.LogInformation("GET /api/productos/{Id} - Buscando producto", id);
+        var producto = await _productoService.ObtenerPorIdAsync(id);
 
         if (producto is null)
         {
+            _logger.LogWarning("Producto con Id {Id} no encontrado", id);
             return NotFound(new { mensaje = $"No existe un producto con Id {id}." });
         }
 
@@ -41,20 +46,23 @@ public class ProductosController : ControllerBase
 
     [HttpPost]
     [ApiKeyAuthorizationFilter("user", "admin")]
-    public ActionResult<Producto> Crear([FromBody] CrearProductoDto productoDto)
+    public async Task<ActionResult<Producto>> Crear([FromBody] CrearProductoDto productoDto)
     {
-        var producto = _productoService.Crear(productoDto);
+        _logger.LogInformation("POST /api/productos - Creando producto: {Nombre}", productoDto.Nombre);
+        var producto = await _productoService.CrearAsync(productoDto);
         return CreatedAtAction(nameof(ObtenerPorId), new { id = producto.Id }, producto);
     }
 
     [HttpPut("{id:int}")]
     [ApiKeyAuthorizationFilter("admin")]
-    public IActionResult Actualizar([FromRoute] int id, [FromBody] ActualizarProductoDto productoDto)
+    public async Task<IActionResult> Actualizar([FromRoute] int id, [FromBody] ActualizarProductoDto productoDto)
     {
-        var producto = _productoService.Actualizar(id, productoDto);
+        _logger.LogInformation("PUT /api/productos/{Id} - Actualizando producto", id);
+        var producto = await _productoService.ActualizarAsync(id, productoDto);
 
         if (producto is null)
         {
+            _logger.LogWarning("Producto con Id {Id} no encontrado para actualizar", id);
             return NotFound(new { mensaje = $"No existe un producto con Id {id}." });
         }
 
@@ -63,12 +71,14 @@ public class ProductosController : ControllerBase
 
     [HttpDelete("{id:int}")]
     [ApiKeyAuthorizationFilter("admin")]
-    public IActionResult Eliminar([FromRoute] int id)
+    public async Task<IActionResult> Eliminar([FromRoute] int id)
     {
-        var producto = _productoService.Eliminar(id);
+        _logger.LogInformation("DELETE /api/productos/{Id} - Eliminando producto", id);
+        var producto = await _productoService.EliminarAsync(id);
 
         if (producto is null)
         {
+            _logger.LogWarning("Producto con Id {Id} no encontrado para eliminar", id);
             return NotFound(new { mensaje = $"No existe un producto con Id {id}." });
         }
 
