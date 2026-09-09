@@ -1,17 +1,19 @@
+using ApiProductos.Data;
 using ApiProductos.DTOs;
 using ApiProductos.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace ApiProductos.Services;
 
 public class ProductoService : IProductoService
 {
-    private static readonly List<Producto> Productos = new();
-    private static int siguienteId = 1;
+    private readonly AppDbContext _context;
     private readonly ILogger<ProductoService> _logger;
 
-    public ProductoService(ILogger<ProductoService> logger)
+    public ProductoService(AppDbContext context, ILogger<ProductoService> logger)
     {
+        _context = context;
         _logger = logger;
     }
 
@@ -19,13 +21,11 @@ public class ProductoService : IProductoService
     {
         _logger.LogInformation("Obteniendo todos los productos. Filtro: {FiltroNombre}, OrdenarPor: {OrdenarPor}", filtroNombre, ordenarPor);
 
-        await Task.Delay(10);
-
-        var query = Productos.AsQueryable();
+        var query = _context.Productos.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(filtroNombre))
         {
-            query = query.Where(p => p.Nombre.Contains(filtroNombre, StringComparison.OrdinalIgnoreCase));
+            query = query.Where(p => p.Nombre.Contains(filtroNombre));
         }
 
         query = ordenarPor?.ToLower() switch
@@ -39,33 +39,30 @@ public class ProductoService : IProductoService
             _ => query
         };
 
-        return query.ToList();
+        return await query.ToListAsync();
     }
 
     public async Task<Producto?> ObtenerPorIdAsync(int id)
     {
         _logger.LogInformation("Buscando producto con Id {Id}", id);
 
-        await Task.Delay(10);
-
-        return Productos.FirstOrDefault(p => p.Id == id);
+        return await _context.Productos.FirstOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<Producto> CrearAsync(CrearProductoDto productoDto)
     {
         _logger.LogInformation("Creando producto: {Nombre}", productoDto.Nombre);
 
-        await Task.Delay(10);
-
         var producto = new Producto
         {
-            Id = siguienteId++,
             Nombre = productoDto.Nombre,
             Precio = productoDto.Precio,
             Stock = productoDto.Stock
         };
 
-        Productos.Add(producto);
+        _context.Productos.Add(producto);
+        await _context.SaveChangesAsync();
+
         _logger.LogInformation("Producto creado con Id {Id}", producto.Id);
 
         return producto;
@@ -74,8 +71,6 @@ public class ProductoService : IProductoService
     public async Task<Producto?> ActualizarAsync(int id, ActualizarProductoDto productoDto)
     {
         _logger.LogInformation("Actualizando producto con Id {Id}", id);
-
-        await Task.Delay(10);
 
         var producto = await ObtenerPorIdAsync(id);
         if (producto is null)
@@ -88,6 +83,8 @@ public class ProductoService : IProductoService
         producto.Precio = productoDto.Precio;
         producto.Stock = productoDto.Stock;
 
+        await _context.SaveChangesAsync();
+
         _logger.LogInformation("Producto con Id {Id} actualizado correctamente", id);
 
         return producto;
@@ -97,8 +94,6 @@ public class ProductoService : IProductoService
     {
         _logger.LogInformation("Eliminando producto con Id {Id}", id);
 
-        await Task.Delay(10);
-
         var producto = await ObtenerPorIdAsync(id);
         if (producto is null)
         {
@@ -106,7 +101,9 @@ public class ProductoService : IProductoService
             return null;
         }
 
-        Productos.Remove(producto);
+        _context.Productos.Remove(producto);
+        await _context.SaveChangesAsync();
+
         _logger.LogInformation("Producto con Id {Id} eliminado correctamente", id);
 
         return producto;

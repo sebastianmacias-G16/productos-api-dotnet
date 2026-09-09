@@ -1,5 +1,6 @@
 using ApiProductos.DTOs;
 using ApiProductos.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace ApiProductos.Services;
