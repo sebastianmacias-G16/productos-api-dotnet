@@ -10,4 +10,14 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<Producto> Productos => Set<Producto>();
+    public DbSet<Categoria> Categorias => Set<Categoria>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Categoria>()
+            .HasMany(c => c.Productos)
+            .WithOne(p => p.Categoria)
+            .HasForeignKey(p => p.CategoriaId)
+            .IsRequired(false);
+    }
 }

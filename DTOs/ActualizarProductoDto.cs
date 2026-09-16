@@ -13,4 +13,6 @@ public class ActualizarProductoDto
 
     [Range(0, int.MaxValue, ErrorMessage = "El stock no puede ser negativo.")]
     public int Stock { get; set; }
+
+    public int? CategoriaId { get; set; }
 }

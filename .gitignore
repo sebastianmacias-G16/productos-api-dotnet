@@ -478,5 +478,8 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# SQLite
+productos.db
+
 # Vim temporary swap files
 *.swp

@@ -57,7 +57,8 @@ public class ProductoService : IProductoService
         {
             Nombre = productoDto.Nombre,
             Precio = productoDto.Precio,
-            Stock = productoDto.Stock
+            Stock = productoDto.Stock,
+            CategoriaId = productoDto.CategoriaId
         };
 
         _context.Productos.Add(producto);
@@ -82,6 +83,7 @@ public class ProductoService : IProductoService
         producto.Nombre = productoDto.Nombre;
         producto.Precio = productoDto.Precio;
         producto.Stock = productoDto.Stock;
+        producto.CategoriaId = productoDto.CategoriaId;
 
         await _context.SaveChangesAsync();
 
