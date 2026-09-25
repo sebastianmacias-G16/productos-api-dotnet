@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ApiProductos.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 public class CategoriasController : ControllerBase
 {
     private readonly AppDbContext _context;

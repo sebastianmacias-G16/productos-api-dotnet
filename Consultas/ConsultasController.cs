@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ApiProductos.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 public class ConsultasController : ControllerBase
 {
     private readonly AppDbContext _context;

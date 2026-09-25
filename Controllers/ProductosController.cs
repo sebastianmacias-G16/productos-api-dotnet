@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ApiProductos.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 public class ProductosController : ControllerBase
 {
     private readonly IProductoService _productoService;
@@ -24,7 +24,7 @@ public class ProductosController : ControllerBase
         [FromQuery] string? filtroNombre = null,
         [FromQuery] string? ordenarPor = null)
     {
-        _logger.LogInformation("GET /api/productos - Obteniendo todos los productos");
+        _logger.LogInformation("GET /api/v1/productos - Obteniendo todos los productos");
         var productos = await _productoService.ObtenerTodosAsync(filtroNombre, ordenarPor);
         return Ok(productos);
     }
@@ -32,7 +32,7 @@ public class ProductosController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<Producto>> ObtenerPorId([FromRoute] int id)
     {
-        _logger.LogInformation("GET /api/productos/{Id} - Buscando producto", id);
+        _logger.LogInformation("GET /api/v1/productos/{Id} - Buscando producto", id);
         var producto = await _productoService.ObtenerPorIdAsync(id);
 
         if (producto is null)
@@ -48,7 +48,7 @@ public class ProductosController : ControllerBase
     [ApiKeyAuthorizationFilter("user", "admin")]
     public async Task<ActionResult<Producto>> Crear([FromBody] CrearProductoDto productoDto)
     {
-        _logger.LogInformation("POST /api/productos - Creando producto: {Nombre}", productoDto.Nombre);
+        _logger.LogInformation("POST /api/v1/productos - Creando producto: {Nombre}", productoDto.Nombre);
         var producto = await _productoService.CrearAsync(productoDto);
         return CreatedAtAction(nameof(ObtenerPorId), new { id = producto.Id }, producto);
     }
@@ -57,7 +57,7 @@ public class ProductosController : ControllerBase
     [ApiKeyAuthorizationFilter("admin")]
     public async Task<IActionResult> Actualizar([FromRoute] int id, [FromBody] ActualizarProductoDto productoDto)
     {
-        _logger.LogInformation("PUT /api/productos/{Id} - Actualizando producto", id);
+        _logger.LogInformation("PUT /api/v1/productos/{Id} - Actualizando producto", id);
         var producto = await _productoService.ActualizarAsync(id, productoDto);
 
         if (producto is null)
@@ -73,7 +73,7 @@ public class ProductosController : ControllerBase
     [ApiKeyAuthorizationFilter("admin")]
     public async Task<IActionResult> Eliminar([FromRoute] int id)
     {
-        _logger.LogInformation("DELETE /api/productos/{Id} - Eliminando producto", id);
+        _logger.LogInformation("DELETE /api/v1/productos/{Id} - Eliminando producto", id);
         var producto = await _productoService.EliminarAsync(id);
 
         if (producto is null)
