@@ -33,7 +33,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
-    options.SwaggerEndpoint("/openapi/v1.json", "ApiProductos v1");
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "ApiProductos v1");
     options.RoutePrefix = "swagger";
 });
 
