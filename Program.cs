@@ -2,6 +2,7 @@ using ApiProductos.Data;
 using ApiProductos.Filters;
 using ApiProductos.Middleware;
 using ApiProductos.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -10,6 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.AddSecurityDefinition("MiHeaderPersonalizado", new OpenApiSecurityScheme
+    {
+        Name = "X-API-KEY",
+        Type = SecuritySchemeType.ApiKey,
+        In = ParameterLocation.Header,
+        Description = "API key necesaria para acceder a los endpoints protegidos. Usa 'admin-key' o 'user-key'."
+    });
+
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "ApiProductos",
@@ -21,6 +30,8 @@ builder.Services.AddSwaggerGen(options =>
             Email = "sebastian.macias@globant.com"
         }
     });
+
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "ApiProductos.xml"));
 });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
